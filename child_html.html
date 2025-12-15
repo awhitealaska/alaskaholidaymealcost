@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alaska Holiday Meal Costs</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://pym.nprapps.org/pym.v1.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            overflow-x: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { ShoppingCart } = lucide;
+
+        const HolidayMealComparison = () => {
+          const [hoveredItem, setHoveredItem] = useState(null);
+          
+          useEffect(() => {
+            const pymChild = new pym.Child();
+            
+            const updateHeight = () => {
+              const height = document.body.scrollHeight;
+              pymChild.sendHeight(height);
+            };
+            
+            updateHeight();
+            window.addEventListener('resize', updateHeight);
+            
+            return () => window.removeEventListener('resize', updateHeight);
+          }, []);
+          
+          const data = [
+            { item: "16-lb Turkey", anc: 12.58, nome: 54.24, icon: "🦃" },
+            { item: "Boneless Ham (4 lbs)", anc: 14.35, nome: 33.96, icon: "🍖" },
+            { item: "Sweet Potatoes (3 lbs)", anc: 5.57, nome: 13.17, icon: "🍠" },
+            { item: "Russet Potatoes (5 lbs)", anc: 5.72, nome: 8.09, icon: "🥔" },
+            { item: "Pumpkin Pie Mix", anc: 4.69, nome: 9.49, icon: "🥧" },
+            { item: "Milk (1 gallon)", anc: 4.39, nome: 9.99, icon: "🥛" },
+            { item: "Pie Crusts (2)", anc: 2.50, nome: 8.02, icon: "🥮" },
+            { item: "Stuffing (14 oz)", anc: 8.00, nome: 9.14, icon: "🍞" },
+            { item: "Green Beans (1 lb)", anc: 3.24, nome: 7.90, icon: "🫘" },
+            { item: "Cranberries (12 oz)", anc: 3.42, nome: 5.24, icon: "🫐" },
+            { item: "Green Peas (1 lb)", anc: 1.78, nome: 4.88, icon: "🫛" },
+            { item: "Rolls (12)", anc: 3.74, nome: 3.75, icon: "🥖" },
+            { item: "Whipping Cream", anc: 1.77, nome: 3.12, icon: "🥛" },
+            { item: "Veggie Tray", anc: 1.67, nome: 2.86, icon: "🥕" },
+            { item: "Misc. Ingredients", anc: 3.61, nome: 3.61, icon: "🧂" }
+          ];
+
+          const totalAnc = 77.00;
+          const totalNome = 177.45;
+          const difference = 100.45;
+          const percentIncrease = ((difference / totalAnc) * 100).toFixed(1);
+
+          const containerStyle = {
+            width: '100%',
+            background: 'linear-gradient(to bottom right, #f9fafb, #f1f5f9, #f3f4f6)',
+            padding: '24px',
+            minHeight: '100vh'
+          };
+
+          const maxWidthStyle = {
+            maxWidth: '1280px',
+            margin: '0 auto'
+          };
+
+          const headerStyle = {
+            textAlign: 'center',
+            marginBottom: '32px'
+          };
+
+          const h1Style = {
+            fontSize: 'clamp(24px, 5vw, 48px)',
+            fontWeight: 'bold',
+            marginBottom: '12px',
+            color: '#2D2926'
+          };
+
+          const subtitleStyle = {
+            fontSize: 'clamp(16px, 3vw, 24px)',
+            marginBottom: '16px',
+            color: '#A59C94'
+          };
+
+          const bannerStyle = {
+            display: 'inline-block',
+            backgroundColor: '#BA0C2F',
+            color: 'white',
+            padding: '16px 32px',
+            borderRadius: '9999px',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+          };
+
+          const gridStyle = {
+            display: 'grid',
+            gridTemplateColumns: window.innerWidth < 768 ? '1fr' : '1fr 1fr',
+            gap: '32px',
+            marginBottom: '32px'
+          };
+
+          const cartStyle = (borderColor) => ({
+            backgroundColor: 'white',
+            borderRadius: '16px',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+            padding: '24px',
+            border: `4px solid ${borderColor}`
+          });
+
+          const cartHeaderStyle = {
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '24px'
+          };
+
+          const cartHeaderInnerStyle = {
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          };
+
+          const cartTitleStyle = (color) => ({
+            fontSize: 'clamp(20px, 4vw, 30px)',
+            fontWeight: 'bold',
+            color: color
+          });
+
+          const itemsContainerStyle = {
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px',
+            marginBottom: '24px',
+            maxHeight: '384px',
+            overflowY: 'auto'
+          };
+
+          const itemStyle = (bgColor, isHovered) => ({
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '12px',
+            borderRadius: '8px',
+            backgroundColor: isHovered ? '#e5e7eb' : bgColor,
+            transition: 'background-color 0.2s'
+          });
+
+          const itemLeftStyle = {
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            flex: 1
+          };
+
+          const totalStyle = {
+            paddingTop: '16px',
+            borderTop: '4px solid',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          };
+
+          const sourcesStyle = {
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            padding: '24px',
+            marginTop: '32px'
+          };
+
+          return (
+            <div style={containerStyle}>
+              <div style={maxWidthStyle}>
+                <div style={headerStyle}>
+                  <h1 style={h1Style}>
+                    Same Holiday Meal, Different Prices
+                  </h1>
+                  <p style={subtitleStyle}>Anchorage vs. Nome, Alaska</p>
+                  <div style={bannerStyle}>
+                    <span style={{ fontSize: 'clamp(24px, 4vw, 36px)', fontWeight: 'bold' }}>$100.45 MORE</span>
+                    <span style={{ fontSize: 'clamp(14px, 2.5vw, 20px)', marginLeft: '12px' }}>in Nome ({percentIncrease}% increase)</span>
+                  </div>
+                </div>
+
+                <div style={gridStyle}>
+                  <div style={cartStyle('#2D2926')}>
+                    <div style={cartHeaderStyle}>
+                      <div style={cartHeaderInnerStyle}>
+                        <ShoppingCart style={{ width: '40px', height: '40px', color: '#2D2926' }} />
+                        <div>
+                          <h2 style={cartTitleStyle('#2D2926')}>Anchorage</h2>
+                          <p style={{ color: '#A59C94', fontSize: 'clamp(12px, 2vw, 16px)' }}>Holiday Meal Cart</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div style={itemsContainerStyle}>
+                      {data.map((item, idx) => (
+                        <div 
+                          key={idx}
+                          style={itemStyle('#F5F5F5', hoveredItem === idx)}
+                          onMouseEnter={() => setHoveredItem(idx)}
+                          onMouseLeave={() => setHoveredItem(null)}
+                        >
+                          <div style={itemLeftStyle}>
+                            <span style={{ fontSize: '24px' }}>{item.icon}</span>
+                            <span style={{ fontSize: 'clamp(12px, 1.8vw, 14px)', fontWeight: '500', color: '#2D2926' }}>{item.item}</span>
+                          </div>
+                          <span style={{ fontSize: 'clamp(14px, 2vw, 18px)', fontWeight: 'bold', color: '#2D2926' }}>${item.anc.toFixed(2)}</span>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <div style={{ ...totalStyle, borderColor: '#A59C94' }}>
+                      <span style={{ fontSize: 'clamp(18px, 3vw, 24px)', fontWeight: 'bold', color: '#2D2926' }}>TOTAL</span>
+                      <span style={{ fontSize: 'clamp(24px, 4vw, 36px)', fontWeight: 'bold', color: '#2D2926' }}>$77.00</span>
+                    </div>
+                  </div>
+
+                  <div style={cartStyle('#BA0C2F')}>
+                    <div style={cartHeaderStyle}>
+                      <div style={cartHeaderInnerStyle}>
+                        <ShoppingCart style={{ width: '40px', height: '40px', color: '#BA0C2F' }} />
+                        <div>
+                          <h2 style={cartTitleStyle('#BA0C2F')}>Nome</h2>
+                          <p style={{ color: '#A59C94', fontSize: 'clamp(12px, 2vw, 16px)' }}>Holiday Meal Cart</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div style={itemsContainerStyle}>
+                      {data.map((item, idx) => {
+                        const priceDiff = item.nome - item.anc;
+                        return (
+                          <div 
+                            key={idx}
+                            style={itemStyle('#FFF5F5', hoveredItem === idx + 100)}
+                            onMouseEnter={() => setHoveredItem(idx + 100)}
+                            onMouseLeave={() => setHoveredItem(null)}
+                          >
+                            <div style={itemLeftStyle}>
+                              <span style={{ fontSize: '24px' }}>{item.icon}</span>
+                              <span style={{ fontSize: 'clamp(12px, 1.8vw, 14px)', fontWeight: '500', color: '#2D2926' }}>{item.item}</span>
+                            </div>
+                            <div style={{ textAlign: 'right' }}>
+                              <div style={{ fontSize: 'clamp(14px, 2vw, 18px)', fontWeight: 'bold', color: '#BA0C2F' }}>${item.nome.toFixed(2)}</div>
+                              {priceDiff > 0.50 && (
+                                <div style={{ fontSize: 'clamp(10px, 1.5vw, 12px)', fontWeight: '600', color: '#BA0C2F' }}>
+                                  +${priceDiff.toFixed(2)}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    
+                    <div style={{ ...totalStyle, borderColor: '#BA0C2F' }}>
+                      <span style={{ fontSize: 'clamp(18px, 3vw, 24px)', fontWeight: 'bold', color: '#2D2926' }}>TOTAL</span>
+                      <span style={{ fontSize: 'clamp(24px, 4vw, 36px)', fontWeight: 'bold', color: '#BA0C2F' }}>$177.45</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={sourcesStyle}>
+                  <h3 style={{ fontSize: 'clamp(16px, 2.5vw, 18px)', fontWeight: '600', marginBottom: '12px', color: '#2D2926' }}>Sources</h3>
+                  <p style={{ marginBottom: '8px', color: '#2D2926', fontSize: 'clamp(14px, 2vw, 16px)' }}>
+                    American Farm Bureau Thanksgiving Menu
+                  </p>
+                  <p style={{ fontSize: 'clamp(12px, 1.8vw, 14px)', color: '#A59C94' }}>
+                    Prices collected from local stores via information available online. Includes any sales prices.
+                  </p>
+                </div>
+              </div>
+            </div>
+          );
+        };
+
+        ReactDOM.render(<HolidayMealComparison />, document.getElementById('root'));
+    </script>
+</body>
+</html>
